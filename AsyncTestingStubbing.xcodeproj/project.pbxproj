@@ -8,11 +8,12 @@
 
 /* Begin PBXBuildFile section */
 		3801423E1B1C61D600987155 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3801423D1B1C61D600987155 /* AppDelegate.swift */; };
-		380142401B1C61D600987155 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3801423F1B1C61D600987155 /* ViewController.swift */; };
-		380142431B1C61D600987155 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 380142411B1C61D600987155 /* Main.storyboard */; };
+		380142401B1C61D600987155 /* LocationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3801423F1B1C61D600987155 /* LocationViewController.swift */; };
 		380142451B1C61D600987155 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 380142441B1C61D600987155 /* Images.xcassets */; };
 		380142481B1C61D600987155 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 380142461B1C61D600987155 /* LaunchScreen.xib */; };
 		380142541B1C61D600987155 /* AsyncTestingStubbingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 380142531B1C61D600987155 /* AsyncTestingStubbingTests.swift */; };
+		3801425E1B1C696D00987155 /* LocationViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3801425D1B1C696D00987155 /* LocationViewController.xib */; };
+		380142641B1C99F100987155 /* LocationCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 380142631B1C99F100987155 /* LocationCoordinator.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -29,13 +30,14 @@
 		380142381B1C61D600987155 /* AsyncTestingStubbing.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AsyncTestingStubbing.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3801423C1B1C61D600987155 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		3801423D1B1C61D600987155 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		3801423F1B1C61D600987155 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
-		380142421B1C61D600987155 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		3801423F1B1C61D600987155 /* LocationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationViewController.swift; sourceTree = "<group>"; };
 		380142441B1C61D600987155 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		380142471B1C61D600987155 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
 		3801424D1B1C61D600987155 /* AsyncTestingStubbingTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AsyncTestingStubbingTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		380142521B1C61D600987155 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		380142531B1C61D600987155 /* AsyncTestingStubbingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncTestingStubbingTests.swift; sourceTree = "<group>"; };
+		3801425D1B1C696D00987155 /* LocationViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = LocationViewController.xib; sourceTree = "<group>"; };
+		380142631B1C99F100987155 /* LocationCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocationCoordinator.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -78,11 +80,12 @@
 			isa = PBXGroup;
 			children = (
 				3801423D1B1C61D600987155 /* AppDelegate.swift */,
-				3801423F1B1C61D600987155 /* ViewController.swift */,
-				380142411B1C61D600987155 /* Main.storyboard */,
+				3801423F1B1C61D600987155 /* LocationViewController.swift */,
+				3801425D1B1C696D00987155 /* LocationViewController.xib */,
 				380142441B1C61D600987155 /* Images.xcassets */,
 				380142461B1C61D600987155 /* LaunchScreen.xib */,
 				3801423B1B1C61D600987155 /* Supporting Files */,
+				380142631B1C99F100987155 /* LocationCoordinator.swift */,
 			);
 			path = AsyncTestingStubbing;
 			sourceTree = "<group>";
@@ -192,8 +195,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				380142431B1C61D600987155 /* Main.storyboard in Resources */,
 				380142481B1C61D600987155 /* LaunchScreen.xib in Resources */,
+				3801425E1B1C696D00987155 /* LocationViewController.xib in Resources */,
 				380142451B1C61D600987155 /* Images.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -212,8 +215,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				380142401B1C61D600987155 /* ViewController.swift in Sources */,
+				380142401B1C61D600987155 /* LocationViewController.swift in Sources */,
 				3801423E1B1C61D600987155 /* AppDelegate.swift in Sources */,
+				380142641B1C99F100987155 /* LocationCoordinator.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -236,14 +240,6 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
-		380142411B1C61D600987155 /* Main.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				380142421B1C61D600987155 /* Base */,
-			);
-			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
 		380142461B1C61D600987155 /* LaunchScreen.xib */ = {
 			isa = PBXVariantGroup;
 			children = (

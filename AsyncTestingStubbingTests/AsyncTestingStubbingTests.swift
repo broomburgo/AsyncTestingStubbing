@@ -1,36 +1,209 @@
-//
-//  AsyncTestingStubbingTests.swift
-//  AsyncTestingStubbingTests
-//
-//  Created by Elviro Rocca on 01/06/15.
-//  Copyright (c) 2015 Elvi. All rights reserved.
-//
-
 import UIKit
 import XCTest
 
+import CoreLocation
+
+import AsyncTestingStubbing
+
 class AsyncTestingStubbingTests: XCTestCase {
     
-    override func setUp() {
-        super.setUp()
-        // Put setup code here. This method is called before the invocation of each test method in the class.
-    }
-    
-    override func tearDown() {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-        super.tearDown()
-    }
-    
-    func testExample() {
-        // This is an example of a functional test case.
-        XCTAssert(true, "Pass")
-    }
-    
-    func testPerformanceExample() {
-        // This is an example of a performance test case.
-        self.measureBlock() {
-            // Put the code you want to measure the time of here.
+    class STUB_LocationCoordinator: LocationCoordinator {
+        
+        override init() {
+            super.init()
+            
+            super.locationManager.stopUpdatingLocation()
+            super.locationManager.delegate = nil
+        }
+        
+        func forceLocation(location: CLLocation) {
+            locationManager(locationManager, didUpdateLocations: [location])
+        }
+        
+        func forceError(locationError: CLError) {
+            locationManager(locationManager, didFailWithError: NSError(domain: "STUB", code: locationError.rawValue, userInfo: [NSLocalizedDescriptionKey:"STUB fail"]))
+        }
+        
+        func forceRandomDelayedLocations(delay: Double) {
+            every(delay, times: 3) { [unowned self] stop in
+                let location = CLLocation(latitude: Double(arc4random()%100), longitude: Double(arc4random()%100))
+                self.locationManager(self.locationManager, didUpdateLocations: [location])
+            }
+        }
+        
+        func forceDelayedErrorLocationUnknown(delay: Double) {
+            after(delay) {
+                self.locationManager(self.locationManager, didFailWithError: NSError(domain: "STUB", code: CLError.LocationUnknown.rawValue, userInfo: [NSLocalizedDescriptionKey:"STUB fail"]))
+            }
         }
     }
     
+    func testLocation() {
+        if let vc = mainViewController() {
+            let coordinator = STUB_LocationCoordinator()
+            vc.showLocationWithCoordinator(coordinator)
+            switch vc.locationState {
+            case .Searching:
+                break
+            default:
+                fail("wrong location state")
+            }
+            coordinator.forceLocation(CLLocation(latitude: 40, longitude: 10))
+            vc.locationState.assertState(.Found)
+        }
+        else {
+            fail("WAT")
+        }
+    }
+    
+    func testError() {
+        if let vc = mainViewController() {
+            let coordinator = STUB_LocationCoordinator()
+            vc.showLocationWithCoordinator(coordinator)
+            switch vc.locationState {
+            case .Searching:
+                break
+            default:
+                fail("wrong location state")
+            }
+            coordinator.forceError(.Denied)
+            vc.locationState.assertState(.Error(.Denied))
+        }
+        else {
+            fail("WAT")
+        }
+    }
+    
+    func testDelayedLocation() {
+        if let vc = mainViewController() {
+            let locationExpectation = expectationWithDescription("locationExpectation")
+            let coordinator = STUB_LocationCoordinator()
+            vc.showLocationWithCoordinator(coordinator)
+            switch vc.locationState {
+            case .Searching:
+                break
+            default:
+                fail("wrong location state")
+            }
+            coordinator.forceRandomDelayedLocations(0.25)
+            after(0.5) {
+                vc.locationState.assertState(.Found)
+                after(0.25) {
+                    vc.locationState.assertState(.Found)
+                    locationExpectation.fulfill()
+                }
+            }
+            waitForExpectationsWithTimeout(1, handler: nil)
+        }
+        else {
+            fail("WAT")
+        }
+    }
+    
+    func testDelayedError() {
+        if let vc = mainViewController() {
+            let locationExpectation = expectationWithDescription("locationExpectation")
+            let coordinator = STUB_LocationCoordinator()
+            vc.showLocationWithCoordinator(coordinator)
+            switch vc.locationState {
+            case .Searching:
+                break
+            default:
+                fail("wrong location state")
+            }
+            coordinator.forceDelayedErrorLocationUnknown(0.25)
+            after(0.5) {
+                vc.locationState.assertState(.Error(.LocationUnknown))
+                locationExpectation.fulfill()
+            }
+            waitForExpectationsWithTimeout(1, handler: nil)
+        }
+        else {
+            fail("WAT")
+        }
+    }
 }
+
+/// MARK: utility
+
+func mainViewController () -> LocationViewController? {
+    
+    UIApplication.sharedApplication().keyWindow.assertNotNil("keyWindow")
+    UIApplication.sharedApplication().keyWindow?.rootViewController.assertNotNil("rootViewController")
+    
+    if let navController = UIApplication.sharedApplication().keyWindow?.rootViewController as? UINavigationController {
+        if let mainViewController = navController.topViewController as? LocationViewController {
+            return mainViewController
+        }
+        else {
+            "topViewController".failType("LocationViewController")
+            return nil
+        }
+    }
+    else {
+        "rootViewController".failType("UINavigationController")
+        return nil
+    }
+}
+
+extension String {
+    func failType(className: String) {
+        XCTAssert(false, self + " is not of " + className + " class")
+    }
+}
+
+extension Optional {
+    func assertNotNil (valueName: String) {
+        XCTAssert(self != nil, valueName + " is nil")
+    }
+}
+
+extension LocationState {
+    func assertState(state: LocationState) {
+        switch (self, state) {
+        case (.Searching, .Searching):
+            break
+        case (.Found,.Found):
+            break
+        case (.Error(let selfLocationError), .Error(let requiredLocationError)):
+            XCTAssert(selfLocationError == requiredLocationError, "wrong location error")
+        default:
+            XCTAssert(false, "wrong location state")
+        }
+    }
+}
+
+func fail (message: String) {
+    XCTAssert(false, message)
+}
+
+extension UIColor {
+    func equalTo(otherColor: UIColor) -> Bool {
+        return CGColorEqualToColor(self.CGColor, otherColor.CGColor)
+    }
+}
+
+func after(seconds: Double, #action: () ->()) {
+    let afterTime = dispatch_time(DISPATCH_TIME_NOW, Int64(seconds * Double(NSEC_PER_SEC)))
+    dispatch_after(afterTime, dispatch_get_main_queue(), action)
+}
+
+func every(seconds: Double, #times: Int, #action: (stop: () -> ()) -> ()) {
+    
+    var shouldStop = false
+
+    if times > 0 {
+        after(seconds) {
+            action {
+                shouldStop = true
+            }
+            if shouldStop == false {
+                every(seconds, times: times-1, action: action)
+            }
+        }
+    }
+}
+
+
+
+
