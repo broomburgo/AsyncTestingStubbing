@@ -12,8 +12,8 @@ class AsyncTestingStubbingTests: XCTestCase {
         override init() {
             super.init()
             
-            super.locationManager.stopUpdatingLocation()
-            super.locationManager.delegate = nil
+            locationManager.stopUpdatingLocation()
+            locationManager.delegate = nil
         }
         
         func forceLocation(location: CLLocation) {
