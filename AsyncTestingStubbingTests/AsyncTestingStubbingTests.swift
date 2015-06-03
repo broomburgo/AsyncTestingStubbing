@@ -24,8 +24,8 @@ class AsyncTestingStubbingTests: XCTestCase {
             locationManager(locationManager, didFailWithError: NSError(domain: "STUB", code: locationError.rawValue, userInfo: [NSLocalizedDescriptionKey:"STUB fail"]))
         }
         
-        func forceRandomDelayedLocations(delay: Double) {
-            every(delay, times: 3) { [unowned self] stop in
+        func forceRandomDelayedLocations(delay: Double, times: Int) {
+            every(delay, times: times) { [unowned self] stop in
                 let location = CLLocation(latitude: Double(arc4random()%100), longitude: Double(arc4random()%100))
                 self.locationManager(self.locationManager, didUpdateLocations: [location])
             }
@@ -42,17 +42,12 @@ class AsyncTestingStubbingTests: XCTestCase {
         if let vc = mainViewController() {
             let coordinator = STUB_LocationCoordinator()
             vc.showLocationWithCoordinator(coordinator)
-            switch vc.locationState {
-            case .Searching:
-                break
-            default:
-                fail("wrong location state")
-            }
+            vc.locationState.assertState(.Searching)
             coordinator.forceLocation(CLLocation(latitude: 40, longitude: 10))
             vc.locationState.assertState(.Found)
         }
         else {
-            fail("WAT")
+            fail("this will never happen")
         }
     }
     
@@ -60,17 +55,12 @@ class AsyncTestingStubbingTests: XCTestCase {
         if let vc = mainViewController() {
             let coordinator = STUB_LocationCoordinator()
             vc.showLocationWithCoordinator(coordinator)
-            switch vc.locationState {
-            case .Searching:
-                break
-            default:
-                fail("wrong location state")
-            }
+            vc.locationState.assertState(.Searching)
             coordinator.forceError(.Denied)
             vc.locationState.assertState(.Error(.Denied))
         }
         else {
-            fail("WAT")
+            fail("this will never happen")
         }
     }
     
@@ -79,13 +69,8 @@ class AsyncTestingStubbingTests: XCTestCase {
             let locationExpectation = expectationWithDescription("locationExpectation")
             let coordinator = STUB_LocationCoordinator()
             vc.showLocationWithCoordinator(coordinator)
-            switch vc.locationState {
-            case .Searching:
-                break
-            default:
-                fail("wrong location state")
-            }
-            coordinator.forceRandomDelayedLocations(0.25)
+            vc.locationState.assertState(.Searching)
+            coordinator.forceRandomDelayedLocations(0.25, times:3)
             after(0.5) {
                 vc.locationState.assertState(.Found)
                 after(0.25) {
@@ -93,10 +78,11 @@ class AsyncTestingStubbingTests: XCTestCase {
                     locationExpectation.fulfill()
                 }
             }
+            vc.locationState.assertState(.Searching)
             waitForExpectationsWithTimeout(1, handler: nil)
         }
         else {
-            fail("WAT")
+            fail("this will never happen")
         }
     }
     
@@ -105,27 +91,24 @@ class AsyncTestingStubbingTests: XCTestCase {
             let locationExpectation = expectationWithDescription("locationExpectation")
             let coordinator = STUB_LocationCoordinator()
             vc.showLocationWithCoordinator(coordinator)
-            switch vc.locationState {
-            case .Searching:
-                break
-            default:
-                fail("wrong location state")
-            }
+            vc.locationState.assertState(.Searching)
             coordinator.forceDelayedErrorLocationUnknown(0.25)
             after(0.5) {
                 vc.locationState.assertState(.Error(.LocationUnknown))
                 locationExpectation.fulfill()
             }
+            vc.locationState.assertState(.Searching)
             waitForExpectationsWithTimeout(1, handler: nil)
         }
         else {
-            fail("WAT")
+            fail("this will never happen")
         }
     }
 }
 
 /// MARK: utility
 
+/// è buona pratica mantenere il tipo opzionale, e unwrapparlo successiamente con if-let
 func mainViewController () -> LocationViewController? {
     
     UIApplication.sharedApplication().keyWindow.assertNotNil("keyWindow")
